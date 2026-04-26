@@ -40,7 +40,7 @@ def load_config():
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             return json.load(f)
     return {
-        "video_bot_link": "https://t.me/ai_video_studio_bot",
+        "video_bot_link": "https://t.me/shadepnbot",
         "pinned_message_id": None
     }
 
@@ -63,15 +63,40 @@ def save_dialogs(dialogs):
     with open(DIALOGS_FILE, "w", encoding="utf-8") as f:
         json.dump(dialogs, f, ensure_ascii=False, indent=2)
 
+# ==================== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ====================
+
+def get_video_bot_keyboard():
+    """Возвращает клавиатуру с кнопкой на Video Bot"""
+    config = load_config()
+    video_bot_link = config.get("video_bot_link", "https://t.me/shadepnbot")
+    
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🚀 Перейти в 18Video Bot", url=video_bot_link)]
+    ])
+
+def get_video_bot_keyboard_with_extra(extra_buttons=None):
+    """Возвращает клавиатуру с Video Bot и дополнительными кнопками"""
+    config = load_config()
+    video_bot_link = config.get("video_bot_link", "https://t.me/shadepnbot")
+    
+    buttons = []
+    
+    if extra_buttons:
+        buttons.extend(extra_buttons)
+    
+    buttons.append([InlineKeyboardButton(text="🚀 Перейти в 18Video Bot", url=video_bot_link)])
+    
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
 # ==================== ОБНОВЛЕНИЕ ЗАКРЕПЛЕННОГО СООБЩЕНИЯ ====================
 
 async def update_pinned_message():
     """🔄 Обновляет закрепленное сообщение с актуальной ссылкой"""
     config = load_config()
-    video_bot_link = config.get("video_bot_link", "https://t.me/ai_video_studio_bot")
+    video_bot_link = config.get("video_bot_link", "https://t.me/shadepnbot")
     
     text = (
-        "🎬 <b>AI Video Studio Bot</b>\n\n"
+        "🎬 <b>18Video Bot</b>\n\n"
         "✨ Создавайте видео из фотографий с помощью AI\n\n"
         "📊 <b>Возможности:</b>\n"
         "✓ Преобразование фото в видео\n"
@@ -91,8 +116,7 @@ async def update_pinned_message():
                     message_id=pinned_msg_id,
                     text=text,
                     parse_mode="HTML",
-                    reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                        [InlineKeyboardButton(text="🚀 Перейти в AI Video Studio", url=video_bot_link)],
+                    reply_markup=get_video_bot_keyboard_with_extra([
                         [InlineKeyboardButton(text="💬 Написать в поддержку", callback_data="write_support")]
                     ])
                 )
@@ -108,8 +132,7 @@ async def update_pinned_message():
                 ADMIN_ID,
                 text,
                 parse_mode="HTML",
-                reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-                    [InlineKeyboardButton(text="🚀 Перейти в AI Video Studio", url=video_bot_link)],
+                reply_markup=get_video_bot_keyboard_with_extra([
                     [InlineKeyboardButton(text="💬 Написать в поддержку", callback_data="write_support")]
                 ])
             )
@@ -132,7 +155,7 @@ async def update_pinned_message():
 async def start(message: types.Message):
     """Начало диалога в боте поддержки"""
     config = load_config()
-    video_bot_link = config.get("video_bot_link", "https://t.me/ai_video_studio_bot")
+    video_bot_link = config.get("video_bot_link", "https://t.me/shadepnbot")
     
     user_id = message.from_user.id
     username = message.from_user.username
@@ -154,15 +177,14 @@ async def start(message: types.Message):
     
     await message.answer(
         "👋 <b>Привет!</b>\n\n"
-        "Это бот поддержки AI Video Studio.\n\n"
+        "Это бот поддержки 18Video Bot.\n\n"
         "🎬 <b>Хочешь создать видео?</b>\n"
         "Нажми кнопку ниже и перейди в генератор видео.\n\n"
         "📝 <b>Есть вопросы?</b>\n"
         "Напиши сообщение и я отправлю его админу. Он ответит тебе в течение часа.\n\n"
         "⚠️ Чтобы закончить диалог - напиши /stop",
         parse_mode="HTML",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="🚀 Перейти в AI Video Studio", url=video_bot_link)],
+        reply_markup=get_video_bot_keyboard_with_extra([
             [InlineKeyboardButton(text="❓ Часто задаваемые вопросы", callback_data="faq")]
         ])
     )
@@ -188,16 +210,14 @@ async def write_support_button(callback: types.CallbackQuery):
     await callback.message.answer(
         "📝 Напиши свой вопрос или проблему.\n\n"
         "Я отправлю сообщение админу и он ответит тебе.\n\n"
-        "⚠️ Чтобы закончить диалог - напиши /stop"
+        "⚠️ Чтобы закончить диалог - напиши /stop",
+        reply_markup=get_video_bot_keyboard()
     )
     await callback.answer()
 
 @dp.callback_query(F.data == "faq")
 async def show_faq(callback: types.CallbackQuery):
     """ЧЗВ"""
-    config = load_config()
-    video_bot_link = config.get("video_bot_link", "https://t.me/ai_video_studio_bot")
-    
     await callback.message.answer(
         "❓ <b>Часто задаваемые вопросы</b>\n\n"
         
@@ -220,8 +240,7 @@ async def show_faq(callback: types.CallbackQuery):
         "<b>Вопрос не решен?</b>\n"
         "Напиши нам в чат ниже 👇",
         parse_mode="HTML",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="🚀 Перейти в генератор", url=video_bot_link)],
+        reply_markup=get_video_bot_keyboard_with_extra([
             [InlineKeyboardButton(text="💬 Написать в поддержку", callback_data="write_support")]
         ])
     )
@@ -238,7 +257,8 @@ async def handle_user_message(message: types.Message):
     if str(user_id) not in dialogs or not dialogs[str(user_id)].get("active", True):
         await message.answer(
             "❌ Диалог закрыт.\n\n"
-            "Введи /start чтобы начать новый диалог."
+            "Введи /start чтобы начать новый диалог.",
+            reply_markup=get_video_bot_keyboard()
         )
         return
     
@@ -284,7 +304,8 @@ async def handle_user_message(message: types.Message):
     await message.answer(
         "✅ <b>Сообщение отправлено админу.</b>\n\n"
         "⏳ Я ответу тебе в течение часа.",
-        parse_mode="HTML"
+        parse_mode="HTML",
+        reply_markup=get_video_bot_keyboard()
     )
 
 # ==================== АДМИН ОТВЕЧАЕТ ====================
@@ -327,7 +348,8 @@ async def admin_send_text_reply(message: types.Message, state: FSMContext):
         await bot.send_message(
             int(user_id),
             f"📩 <b>Ответ от админа:</b>\n\n{message.text}",
-            parse_mode="HTML"
+            parse_mode="HTML",
+            reply_markup=get_video_bot_keyboard()
         )
         
         await message.answer(f"✅ Ответ отправлен пользователю {user_id}")
@@ -335,7 +357,8 @@ async def admin_send_text_reply(message: types.Message, state: FSMContext):
         
         await bot.send_message(
             int(user_id),
-            "✍️ Ты можешь ответить админу, просто написав сообщение сюда."
+            "✍️ Ты можешь ответить админу, просто написав сообщение сюда.",
+            reply_markup=get_video_bot_keyboard()
         )
         
     except Exception as e:
@@ -365,7 +388,8 @@ async def admin_send_photo_reply(message: types.Message, state: FSMContext):
             int(user_id),
             photo=photo.file_id,
             caption=caption,
-            parse_mode="HTML"
+            parse_mode="HTML",
+            reply_markup=get_video_bot_keyboard()
         )
         
         await message.answer(f"✅ Фото отправлено пользователю {user_id}")
@@ -373,7 +397,8 @@ async def admin_send_photo_reply(message: types.Message, state: FSMContext):
         
         await bot.send_message(
             int(user_id),
-            "✍️ Ты можешь ответить админу, просто написав сообщение сюда."
+            "✍️ Ты можешь ответить админу, просто написав сообщение сюда.",
+            reply_markup=get_video_bot_keyboard()
         )
         
     except Exception as e:
@@ -399,16 +424,11 @@ async def stop_dialog(message: types.Message):
         dialogs[str(user_id)]["active"] = False
         save_dialogs(dialogs)
     
-    config = load_config()
-    video_bot_link = config.get("video_bot_link", "https://t.me/ai_video_studio_bot")
-    
     await message.answer(
         "✅ <b>Диалог завершён.</b>\n\n"
         "Введи /start чтобы начать новый диалог.",
         parse_mode="HTML",
-        reply_markup=InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="🚀 Перейти в генератор", url=video_bot_link)]
-        ])
+        reply_markup=get_video_bot_keyboard()
     )
 
 # ==================== АДМИН-ПАНЕЛЬ ====================
