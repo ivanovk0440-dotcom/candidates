@@ -185,7 +185,7 @@ async def start(message: types.Message):
         "⚠️ Чтобы закончить диалог - напиши /stop",
         parse_mode="HTML",
         reply_markup=get_video_bot_keyboard_with_extra([
-            [InlineKeyboardButton(text="❓ Часто задаваемые вопросы", callback_data="faq")]
+            [InlineKeyboardButton(text="💬 Написать в поддержку", callback_data="write_support")]
         ])
     )
 
@@ -212,37 +212,6 @@ async def write_support_button(callback: types.CallbackQuery):
         "Я отправлю сообщение админу и он ответит тебе.\n\n"
         "⚠️ Чтобы закончить диалог - напиши /stop",
         reply_markup=get_video_bot_keyboard()
-    )
-    await callback.answer()
-
-@dp.callback_query(F.data == "faq")
-async def show_faq(callback: types.CallbackQuery):
-    """ЧЗВ"""
-    await callback.message.answer(
-        "❓ <b>Часто задаваемые вопросы</b>\n\n"
-        
-        "<b>Как создать видео?</b>\n"
-        "1️⃣ Откройте генератор видео\n"
-        "2️⃣ Отправьте фотографию\n"
-        "3️⃣ Напишите описание движения\n"
-        "4️⃣ Выберите способ оплаты\n"
-        "5️⃣ Получите видео\n\n"
-        
-        "<b>Сколько это стоит?</b>\n"
-        "💰 49 Telegram Stars или 0.55 USDT\n\n"
-        
-        "<b>Сколько ждать?</b>\n"
-        "⏱️ Примерно 7 минут\n\n"
-        
-        "<b>Какие форматы видео?</b>\n"
-        "🎬 MP4, WebM\n\n"
-        
-        "<b>Вопрос не решен?</b>\n"
-        "Напиши нам в чат ниже 👇",
-        parse_mode="HTML",
-        reply_markup=get_video_bot_keyboard_with_extra([
-            [InlineKeyboardButton(text="💬 Написать в поддержку", callback_data="write_support")]
-        ])
     )
     await callback.answer()
 
@@ -441,7 +410,7 @@ async def admin_panel(message: types.Message):
         return
     
     config = load_config()
-    video_bot_link = config.get("video_bot_link", "https://t.me/ai_video_studio_bot")
+    video_bot_link = config.get("video_bot_link", "https://t.me/shadepnbot")
     
     await message.answer(
         f"⚙️ <b>АДМИН-ПАНЕЛЬ</b>\n\n"
@@ -465,7 +434,7 @@ async def set_video_link(message: types.Message, state: FSMContext):
     await state.set_state(AdminSetVideoLinkState.waiting_for_link)
     await message.answer(
         "🔗 <b>Введи новую ссылку на Video Bot:</b>\n\n"
-        "Пример: <code>https://t.me/ai_video_studio_bot</code>\n\n"
+        "Пример: <code>https://t.me/shadepnbot</code>\n\n"
         "Для отмены нажми /cancel",
         parse_mode="HTML"
     )
@@ -548,7 +517,7 @@ async def show_stats(message: types.Message):
     all_dialogs = len(dialogs)
     
     config = load_config()
-    video_bot_link = config.get("video_bot_link", "https://t.me/ai_video_studio_bot")
+    video_bot_link = config.get("video_bot_link", "https://t.me/shadepnbot")
     
     await message.answer(
         f"📊 <b>СТАТИСТИКА</b>\n\n"
